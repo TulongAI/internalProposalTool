@@ -11,6 +11,7 @@
   --font-display:'Hanken Grotesk','Public Sans',-apple-system,sans-serif;
   --font-body:'Public Sans',-apple-system,'Segoe UI',sans-serif;
   --font-mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif:'Lora','Iowan Old Style',Georgia,'Times New Roman',serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
@@ -207,7 +208,7 @@ fieldset{ border:none; padding:0; margin:0; }
 .doc-hero-content{ position:relative; z-index:1; }
 .doc-hero .brand{ font-size:1.15rem; color:#fff; margin-bottom:1.6rem; }
 .doc-hero .doc-eyebrow{ color:#FF9FB0; }
-.doc-hero h1{ font-size:clamp(1.7rem,1.4rem + 1.2vw,2.35rem); color:#fff; margin-bottom:.5rem; }
+.doc-hero h1{ font-family:var(--font-serif); font-weight:600; font-size:clamp(1.9rem,1.5rem + 1.6vw,2.7rem); color:#fff; margin-bottom:.5rem; letter-spacing:-0.01em; }
 .doc-hero-meta{ display:grid; grid-template-columns:repeat(3,auto); gap:1.6rem 2.4rem; margin-top:1.8rem; padding-top:1.2rem; border-top:1px solid rgba(255,255,255,.18); }
 .doc-hero-meta .k{ font-family:var(--font-mono); font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; color:var(--rail-text-soft); margin-bottom:.3rem; }
 .doc-hero-meta .v{ font-family:var(--font-display); font-weight:700; font-size:.98rem; }
@@ -216,7 +217,7 @@ fieldset{ border:none; padding:0; margin:0; }
 .doc-section{ margin-bottom:2.3rem; }
 .doc-section:last-child{ margin-bottom:0; }
 .doc-eyebrow{ font-family:var(--font-mono); font-size:.7rem; letter-spacing:.09em; text-transform:uppercase; color:var(--crimson-text); margin-bottom:.55rem; display:block; }
-.doc-section h2{ font-size:1.35rem; margin-bottom:.9rem; }
+.doc-section h2{ font-family:var(--font-serif); font-weight:600; font-size:1.5rem; margin-bottom:.9rem; letter-spacing:-0.005em; }
 
 .doc-greeting{ font-size:1.05rem; line-height:1.75; white-space:pre-line; color:var(--ink); }
 .doc-greeting .sig{ display:block; margin-top:1rem; font-style:italic; color:var(--ink-soft); }
@@ -240,17 +241,20 @@ fieldset{ border:none; padding:0; margin:0; }
 
 .scope-note{ margin-top:1rem; padding:.85rem 1rem; background:var(--surface-2); border-radius:10px; font-size:.9rem; color:var(--ink-soft); }
 
-.service-line{ padding:.75rem 0; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; gap:1rem; }
+.service-line{ padding:.9rem 0; border-bottom:1px solid var(--line); display:flex; gap:1rem; align-items:flex-start; }
 .service-line:last-child{ border-bottom:none; }
 .service-line .sl-name{ font-weight:700; }
 .service-line .sl-blurb{ color:var(--ink-soft); font-size:.88rem; margin-top:.2rem; }
 .service-line .sl-meta{ color:var(--ink-faint); font-size:.78rem; margin-top:.3rem; font-family:var(--font-mono); }
-.service-line .sl-num{ font-family:var(--font-mono); color:var(--tint-ink); font-size:.82rem; flex-shrink:0; }
+.service-line .sl-num{
+  font-family:var(--font-mono); font-weight:700; color:#fff; background:var(--navy); font-size:.78rem;
+  flex-shrink:0; width:1.9rem; height:1.9rem; border-radius:50%; display:flex; align-items:center; justify-content:center;
+}
 
 .phase-box{ border:1.5px solid var(--indigo-solid); border-radius:12px; padding:1.1rem 1.3rem; margin-bottom:1rem; background:var(--tint-bg); }
 .phase-box .pb-top{ display:flex; justify-content:space-between; align-items:baseline; gap:.5rem; flex-wrap:wrap; }
-.phase-box .pb-label{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; color:var(--tint-ink); }
-.phase-box .pb-name{ font-family:var(--font-display); font-weight:700; font-size:1.1rem; margin-top:.25rem; }
+.phase-box .pb-label{ font-family:var(--font-mono); font-size:.68rem; letter-spacing:.06em; text-transform:uppercase; color:var(--amber); }
+.phase-box .pb-name{ font-family:var(--font-serif); font-weight:600; font-size:1.15rem; margin-top:.25rem; }
 .phase-box .pb-price{ font-family:var(--font-mono); font-size:1.15rem; color:var(--tint-ink); font-variant-numeric:tabular-nums; }
 
 .pricing-hero{ border:1.5px solid var(--indigo-solid); border-radius:12px; padding:1.4rem 1.5rem; background:var(--tint-bg); margin-bottom:1rem; }
@@ -280,14 +284,14 @@ fieldset{ border:none; padding:0; margin:0; }
 .tl-bar{ flex:1; width:1px; background:var(--line); margin-top:.2rem; }
 .tl-item:last-child .tl-bar{ display:none; }
 .tl-content{ padding-bottom:1.3rem; }
-.tl-phase{ font-weight:700; }
-.tl-duration{ font-family:var(--font-mono); font-size:.8rem; color:var(--tint-ink); margin-top:.1rem; }
+.tl-phase{ font-family:var(--font-serif); font-weight:600; font-size:1.05rem; }
+.tl-duration{ font-family:var(--font-mono); font-size:.8rem; color:var(--amber); margin-top:.1rem; }
 
 .why-copy{ line-height:1.75; white-space:pre-line; margin-bottom:1.1rem; }
 .stat-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; margin-bottom:1.2rem; }
 @media (max-width:620px){ .stat-row{ grid-template-columns:1fr; } }
 .stat{ background:var(--surface-2); border-radius:10px; padding:.85rem .9rem; }
-.stat b{ display:block; font-family:var(--font-mono); font-size:1.05rem; color:var(--tint-ink); }
+.stat b{ display:block; font-family:var(--font-serif); font-weight:600; font-size:1.2rem; color:var(--tint-ink); }
 .stat span{ font-size:.78rem; color:var(--ink-soft); }
 .trust-strip{ font-size:.82rem; color:var(--ink-faint); }
 .trust-strip b{ color:var(--ink-soft); font-weight:600; }
@@ -296,6 +300,43 @@ fieldset{ border:none; padding:0; margin:0; }
 .doc-signoff .rep{ font-weight:700; }
 .doc-signoff .rep small{ display:block; font-weight:400; color:var(--ink-soft); font-size:.85rem; margin-top:.15rem; }
 .doc-signoff .stamp{ font-family:var(--font-mono); font-size:.72rem; color:var(--ink-faint); text-align:right; }
+
+/* The proposal document itself is a client-facing artifact — it should
+   always render the same bright, branded look regardless of the viewer's
+   OS dark-mode preference or (for the internal tool) the Light/Dark/Auto
+   toggle, the same way a printed page or PDF wouldn't change appearance.
+   Pinning the color tokens here overrides both the [data-theme="dark"]
+   and prefers-color-scheme cascades for anything nested inside. */
+.doc-wrap, .public-view-shell{
+  --paper:#F0F3FA; --surface:#FFFFFF; --surface-2:#E9ECF7; --line:#D9DEEF;
+  --ink:#15224D; --ink-soft:#4A5580; --ink-faint:#7C86AD;
+  --indigo:#322F87; --indigo-solid:#322F87;
+  --crimson:#EC1845; --crimson-text:#C6123B; --crimson-bg:#EC1845;
+  --amber:#C9720A; --tint-bg:#E9E7F8; --tint-ink:#322F87;
+  --shadow-sm:0 1px 2px rgba(21,34,77,.08); --shadow-md:0 8px 28px rgba(21,34,77,.12);
+  background:var(--paper);
+}
+.doc-wrap{ position:relative; }
+.doc-corner-pill{
+  position:sticky; top:1rem; z-index:5; display:inline-flex; align-items:center; gap:.35rem; width:fit-content;
+  margin-bottom:1rem; padding:.4rem .85rem; border-radius:999px; border:1px solid var(--line); background:var(--surface);
+  box-shadow:var(--shadow-sm); font-family:var(--font-mono); font-size:.66rem; letter-spacing:.05em; text-transform:uppercase;
+  color:var(--ink-soft);
+}
+.doc-corner-pill .pill-x{ color:var(--crimson-text); }
+
+.doc-scrollspy{
+  position:fixed; top:50%; right:1.25rem; transform:translateY(-50%); z-index:6;
+  display:flex; flex-direction:column; gap:.55rem;
+}
+.doc-scrollspy .sd{
+  width:8px; height:8px; border-radius:50%; background:var(--line); border:none; padding:0; cursor:pointer;
+  transition:background .15s, transform .15s;
+}
+.doc-scrollspy .sd:hover{ background:var(--ink-faint); }
+.doc-scrollspy .sd.is-active{ background:var(--crimson-bg); transform:scale(1.35); }
+@media (max-width:900px){ .doc-scrollspy{ display:none; } }
+@media print{ .doc-scrollspy, .doc-corner-pill{ display:none !important; } }
 
 .del-confirm{ display:flex; align-items:center; gap:.5rem; }
 
