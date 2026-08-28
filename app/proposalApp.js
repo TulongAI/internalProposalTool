@@ -14,7 +14,7 @@ import {
   DEFAULT_TIMELINE, DEFAULT_WHY,
   fmtMoney, fmtDate, esc, linesToBullets, defaultGreeting, waveSvg,
   assignSlug, clientLinkForProposal,
-  renderProposalArticleHTML
+  renderProposalArticleHTML, mountDocScrollSpy
 } from "../lib/proposalShared.js";
 
 function uid() { return "p_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
@@ -182,6 +182,7 @@ export function mountProposalApp() {
     else app.innerHTML = renderList();
     bind();
     updateNav();
+    if (view.mode === "doc") mountDocScrollSpy(app);
   }
 
   function updateNav() {
