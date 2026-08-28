@@ -17,6 +17,17 @@ function getClient(): SupabaseClient {
   if (!client) {
     client = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
       auth: { persistSession: false },
+      // Next.js patches the global `fetch` to cache GET requests by
+      // default in the App Router — including ones made internally by
+      // this client, not just fetches this codebase calls directly.
+      // Without this override, the first-ever (empty) read got cached
+      // and every later read kept serving that same stale snapshot
+      // forever, even though writes (POST/PATCH/DELETE, never cached)
+      // were landing in the table the whole time. Force every request
+      // this client makes to bypass that cache.
+      global: {
+        fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
+      },
     });
   }
   return client;
