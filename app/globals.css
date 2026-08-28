@@ -301,6 +301,21 @@ fieldset{ border:none; padding:0; margin:0; }
 .doc-signoff .rep small{ display:block; font-weight:400; color:var(--ink-soft); font-size:.85rem; margin-top:.15rem; }
 .doc-signoff .stamp{ font-family:var(--font-mono); font-size:.72rem; color:var(--ink-faint); text-align:right; }
 
+/* The proposal document itself is a client-facing artifact — it should
+   always render the same bright, branded look regardless of the viewer's
+   OS dark-mode preference or (for the internal tool) the Light/Dark/Auto
+   toggle, the same way a printed page or PDF wouldn't change appearance.
+   Pinning the color tokens here overrides both the [data-theme="dark"]
+   and prefers-color-scheme cascades for anything nested inside. */
+.doc-wrap, .public-view-shell{
+  --paper:#F0F3FA; --surface:#FFFFFF; --surface-2:#E9ECF7; --line:#D9DEEF;
+  --ink:#15224D; --ink-soft:#4A5580; --ink-faint:#7C86AD;
+  --indigo:#322F87; --indigo-solid:#322F87;
+  --crimson:#EC1845; --crimson-text:#C6123B; --crimson-bg:#EC1845;
+  --amber:#C9720A; --tint-bg:#E9E7F8; --tint-ink:#322F87;
+  --shadow-sm:0 1px 2px rgba(21,34,77,.08); --shadow-md:0 8px 28px rgba(21,34,77,.12);
+  background:var(--paper);
+}
 .doc-wrap{ position:relative; }
 .doc-corner-pill{
   position:sticky; top:1rem; z-index:5; display:inline-flex; align-items:center; gap:.35rem; width:fit-content;
