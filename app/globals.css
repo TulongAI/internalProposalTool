@@ -316,3 +316,20 @@ fieldset{ border:none; padding:0; margin:0; }
   .doc-hero{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
   body{ background:#fff; }
 }
+
+/* ---------- public client view (view.tulongtech.ai) ---------- */
+.public-view-shell{ min-height:100vh; background:var(--paper); }
+.public-view-topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:1.1rem clamp(1.25rem,4vw,3.25rem); border-bottom:1px solid var(--line);
+}
+.public-view-topbar .brand{ font-size:1.15rem; }
+.public-view-main{ padding:2.4rem clamp(1.25rem,4vw,3.25rem) 5rem; max-width:1100px; margin:0 auto; }
+
+.notfound-block{ max-width:520px; margin:4.5rem auto; text-align:center; color:var(--ink-soft); padding:0 1.25rem; }
+.notfound-block h1{ font-size:1.6rem; margin-bottom:.6rem; color:var(--ink); }
+
+@media print{
+  .public-view-topbar{ display:none !important; }
+  .public-view-main{ padding:0; max-width:100%; }
+}

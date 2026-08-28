@@ -41,6 +41,38 @@ Push this repo to Vercel, add a Vercel KV store under the project's Storage tab
 (this wires up `KV_REST_API_URL` / `KV_REST_API_TOKEN` automatically), and set
 `tulong-proposal-tool-prod` under Environment Variables.
 
+### Two domains, one deployment
+
+The app serves two different experiences depending on which hostname a request
+comes in on — both point at this same Vercel project/deployment, split by
+`middleware.ts`:
+
+- **`proposal.tulongtech.ai`** (and any other host, including the raw
+  `*.vercel.app` deployment URL and `localhost`) — the internal tool: proposal
+  list, create/edit/delete, everything at `/` exactly as before.
+- **`view.tulongtech.ai/<slug>`** — a public, read-only, branded view of one
+  client's current proposal (see `app/public-view/`). No sidebar, no list, no
+  Edit/Delete — just the proposal document and a Print/Save as PDF button. An
+  unknown or missing slug renders a simple branded 404
+  (`app/public-view/not-found.tsx`).
+
+To wire this up in Vercel: add both `proposal.tulongtech.ai` and
+`view.tulongtech.ai` as domains on the project (Vercel dashboard → Settings →
+Domains), and point each at Vercel per its instructions (typically a CNAME at
+your DNS provider). No separate deployment or project is needed — the
+middleware does the routing based on the `Host` header.
+
+### Client links
+
+Every proposal gets a `slug` (derived from the client's organization name,
+e.g. "FarSight Homes" → `farsighthomes`) assigned on save — see
+`assignSlug()` in `lib/proposalShared.js`. Saving a proposal for the same
+client again reuses the same slug, so `view.tulongtech.ai/<slug>` always
+resolves to that client's most recent proposal; a different client whose name
+would produce the same slug gets a `-2`, `-3`, ... suffix instead. The
+internal doc view has a "Copy Client Link" button that copies the full
+`https://view.tulongtech.ai/<slug>` URL.
+
 ## Notes
 
 - The theme toggle (Light/Dark/Auto) still uses `localStorage` — that's a
