@@ -8,8 +8,9 @@ shared, server-side persistence.
 ## Stack
 
 - **Next.js** (App Router) — UI + serverless API routes
-- **Vercel KV** — stores the proposal list (falls back to an in-memory store for
-  local dev if KV isn't configured, so `npm run dev` works out of the box)
+- **Supabase** (Postgres) — stores the proposal list in a `proposals` table
+  (see `lib/store.ts`); read/written only from server-side code using the
+  `service_role` key, which bypasses the table's Row Level Security
 - A `/api/claude` serverless function that proxies to the Anthropic Messages API,
   used by the "✨ Draft with AI" buttons on the greeting / "why Tulong" fields.
   The Anthropic API key stays server-side and is never sent to the browser.
@@ -31,23 +32,21 @@ Environment Variables for deployment:
 
 - `tulong-proposal-tool-prod` — your Anthropic API key. Read only by
   `app/api/claude/route.ts`; required for the "Draft with AI" buttons to work.
-- `KV_REST_API_URL` / `KV_REST_API_TOKEN` — provided automatically once you add
-  the **Vercel KV** (Storage tab) integration to the project and link it. Without
-  these, proposal data is kept in memory only, **scoped to a single serverless
-  instance** — in production this means a save can appear to work (the internal
-  tool updates optimistically) while being invisible to the next request, a
-  different route, or a client's public link, because Vercel may route those to
-  a different instance entirely. This isn't just "lost on restart" like local
-  dev — it's silently inconsistent per-request. The app surfaces this: if
-  `/api/proposals` reports `storage: "memory"`, the internal tool's sidebar
-  status shows an amber dot with a warning instead of "Connected". If you see
-  that in production, the KV store isn't actually linked to the project yet.
+- `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` — from the Supabase project's
+  Project Settings > API page. Required — unlike the old Vercel KV setup,
+  there is no in-memory fallback: if these are missing or wrong,
+  `/api/proposals` returns a clear 500 error (`Supabase is not configured: ...`)
+  instead of silently degrading. That's deliberate — a KV-era version of this
+  app had a fallback that looked like it worked locally but silently lost
+  writes in production because it wasn't actually shared across serverless
+  instances. Better to fail loudly than repeat that.
 
 ## Deploying
 
-Push this repo to Vercel, add a Vercel KV store under the project's Storage tab
-(this wires up `KV_REST_API_URL` / `KV_REST_API_TOKEN` automatically), and set
-`tulong-proposal-tool-prod` under Environment Variables.
+Push this repo to Vercel and set `tulong-proposal-tool-prod`, `SUPABASE_URL`,
+and `SUPABASE_SERVICE_ROLE_KEY` under Environment Variables. The Supabase
+project itself (and its `proposals` table) is provisioned separately — see
+`lib/store.ts` for the schema this code expects if you need to recreate it.
 
 ### Two domains, one deployment
 
@@ -86,7 +85,10 @@ internal doc view has a "Copy Client Link" button that copies the full
 - The theme toggle (Light/Dark/Auto) still uses `localStorage` — that's a
   per-browser UI preference, not shared app data, so it doesn't need the
   database.
-- Proposal data is stored as a single JSON array under one KV key
-  (`tulong:proposals`), matching the original artifact's data model. This is an
-  internal tool for a small team; if usage grows, consider per-proposal KV keys
-  or a proper database instead of one shared blob.
+- Each proposal is one row in Supabase's `proposals` table: `id` (primary key),
+  `slug` and `client_name` (denormalized from `content`, indexed together so
+  the public view's slug lookup doesn't need to scan/parse every row), and
+  `content` (the full proposal record as JSON — the source of truth). The
+  `/api/proposals` PUT endpoint still takes the whole desired list at once
+  (matching the original artifact's data model) and diffs it against what's
+  stored, rather than exposing granular create/update/delete endpoints.

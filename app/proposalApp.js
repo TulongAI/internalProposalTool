@@ -61,41 +61,38 @@ export function mountProposalApp() {
   }
   initTheme();
 
-  /* ---------------- status + persistence (Vercel KV via /api/proposals) ---------------- */
-  // Set from the "storage" field the API reports on every response. When
-  // it's "memory", the app is running without Vercel KV linked, so writes
-  // only live in one serverless instance's memory — other requests
-  // (another visitor, the public client link, even a different Vercel
-  // function) won't see them. That's invisible unless we say so.
-  var usingMemoryStorage = false;
-
-  function connectedStatusDetail() {
-    return usingMemoryStorage
-      ? "No database linked — proposals only exist in this one server instance and can vanish or be invisible elsewhere. Link Vercel KV."
-      : "Changes save to the shared database.";
-  }
-
+  /* ---------------- status + persistence (Supabase via /api/proposals) ---------------- */
   function setStatus(text, detail, off) {
     var textEl = document.getElementById("status-text");
     var detailEl = document.getElementById("status-detail");
     var dotEl = document.getElementById("status-dot");
     if (textEl) textEl.textContent = text;
     if (detailEl) detailEl.textContent = detail || "";
-    if (dotEl) dotEl.classList.toggle("is-off", !!off || usingMemoryStorage);
+    if (dotEl) dotEl.classList.toggle("is-off", !!off);
   }
   setStatus("Loading proposals…", "");
+
+  // Extracts the API's `{ error }` body on a failed response, falling back
+  // to a generic message if the body isn't JSON or doesn't have one — so a
+  // real misconfiguration (e.g. Supabase env vars missing) surfaces its
+  // actual cause instead of just "Request failed (500)".
+  function errorFromResponse(res, fallback) {
+    return res.json().then(
+      function (data) { return (data && data.error) || fallback; },
+      function () { return fallback; }
+    );
+  }
 
   function loadInitial() {
     fetch("/api/proposals")
       .then(function (res) {
-        if (!res.ok) throw new Error("Request failed (" + res.status + ")");
+        if (!res.ok) return errorFromResponse(res, "Request failed (" + res.status + ")").then(function (msg) { throw new Error(msg); });
         return res.json();
       })
       .then(function (data) {
         state = { proposals: Array.isArray(data && data.proposals) ? data.proposals : [] };
-        usingMemoryStorage = (data && data.storage) === "memory";
         loaded = true;
-        setStatus("Connected", connectedStatusDetail());
+        setStatus("Connected", "Changes save to the shared database.");
         render();
       })
       .catch(function (err) {
@@ -116,12 +113,8 @@ export function mountProposalApp() {
       body: JSON.stringify(nextState)
     })
       .then(function (res) {
-        if (!res.ok) throw new Error("Save failed (" + res.status + ")");
-        return res.json().catch(function () { return null; });
-      })
-      .then(function (data) {
-        usingMemoryStorage = (data && data.storage) === "memory";
-        setStatus("Connected", connectedStatusDetail());
+        if (!res.ok) return errorFromResponse(res, "Save failed (" + res.status + ")").then(function (msg) { throw new Error(msg); });
+        setStatus("Connected", "Changes save to the shared database.");
       })
       .catch(function (err) {
         setStatus("Save failed", (err && err.message) || "Something went wrong — your change may not be saved.", true);

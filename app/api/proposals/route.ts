@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
-import { getProposals, setProposals, isUsingKv } from "@/lib/store";
+import { getProposals, setProposals } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const proposals = await getProposals();
-  return NextResponse.json({ proposals, storage: isUsingKv() ? "kv" : "memory" });
+  try {
+    const proposals = await getProposals();
+    return NextResponse.json({ proposals });
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+  }
 }
 
 export async function PUT(request: Request) {
@@ -13,6 +17,10 @@ export async function PUT(request: Request) {
   if (!body || !Array.isArray(body.proposals)) {
     return NextResponse.json({ error: "Expected a JSON body shaped like { proposals: [] }" }, { status: 400 });
   }
-  await setProposals(body.proposals);
-  return NextResponse.json({ ok: true, storage: isUsingKv() ? "kv" : "memory" });
+  try {
+    await setProposals(body.proposals);
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    return NextResponse.json({ error: (err as Error).message }, { status: 500 });
+  }
 }
