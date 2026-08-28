@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getProposals, setProposals } from "@/lib/store";
+import { getProposals, setProposals, isUsingKv } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const proposals = await getProposals();
-  return NextResponse.json({ proposals });
+  return NextResponse.json({ proposals, storage: isUsingKv() ? "kv" : "memory" });
 }
 
 export async function PUT(request: Request) {
@@ -14,5 +14,5 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Expected a JSON body shaped like { proposals: [] }" }, { status: 400 });
   }
   await setProposals(body.proposals);
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, storage: isUsingKv() ? "kv" : "memory" });
 }

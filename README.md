@@ -33,7 +33,15 @@ Environment Variables for deployment:
   `app/api/claude/route.ts`; required for the "Draft with AI" buttons to work.
 - `KV_REST_API_URL` / `KV_REST_API_TOKEN` — provided automatically once you add
   the **Vercel KV** (Storage tab) integration to the project and link it. Without
-  these, proposal data is kept in memory only and is lost on restart/redeploy.
+  these, proposal data is kept in memory only, **scoped to a single serverless
+  instance** — in production this means a save can appear to work (the internal
+  tool updates optimistically) while being invisible to the next request, a
+  different route, or a client's public link, because Vercel may route those to
+  a different instance entirely. This isn't just "lost on restart" like local
+  dev — it's silently inconsistent per-request. The app surfaces this: if
+  `/api/proposals` reports `storage: "memory"`, the internal tool's sidebar
+  status shows an amber dot with a warning instead of "Connected". If you see
+  that in production, the KV store isn't actually linked to the project yet.
 
 ## Deploying
 

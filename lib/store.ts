@@ -9,6 +9,17 @@ const KEY = "tulong:proposals";
 // invocations in production — set up real KV for that.
 const hasKv = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 
+// Exposed so API routes can tell callers which backend is actually in use.
+// The in-memory fallback is scoped to a single serverless function
+// instance — fine for `npm run dev`, but on Vercel each route (and each
+// cold start) can be a different instance, so without real KV, writes
+// from one request are invisible to reads from another. That's silent
+// and easy to miss, so the client surfaces a warning when this is false
+// in production instead of just quietly losing data.
+export function isUsingKv(): boolean {
+  return hasKv;
+}
+
 let memoryStore: unknown[] = [];
 
 export async function getProposals(): Promise<unknown[]> {

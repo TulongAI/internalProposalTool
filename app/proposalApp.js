@@ -62,13 +62,26 @@ export function mountProposalApp() {
   initTheme();
 
   /* ---------------- status + persistence (Vercel KV via /api/proposals) ---------------- */
+  // Set from the "storage" field the API reports on every response. When
+  // it's "memory", the app is running without Vercel KV linked, so writes
+  // only live in one serverless instance's memory — other requests
+  // (another visitor, the public client link, even a different Vercel
+  // function) won't see them. That's invisible unless we say so.
+  var usingMemoryStorage = false;
+
+  function connectedStatusDetail() {
+    return usingMemoryStorage
+      ? "No database linked — proposals only exist in this one server instance and can vanish or be invisible elsewhere. Link Vercel KV."
+      : "Changes save to the shared database.";
+  }
+
   function setStatus(text, detail, off) {
     var textEl = document.getElementById("status-text");
     var detailEl = document.getElementById("status-detail");
     var dotEl = document.getElementById("status-dot");
     if (textEl) textEl.textContent = text;
     if (detailEl) detailEl.textContent = detail || "";
-    if (dotEl) dotEl.classList.toggle("is-off", !!off);
+    if (dotEl) dotEl.classList.toggle("is-off", !!off || usingMemoryStorage);
   }
   setStatus("Loading proposals…", "");
 
@@ -80,8 +93,9 @@ export function mountProposalApp() {
       })
       .then(function (data) {
         state = { proposals: Array.isArray(data && data.proposals) ? data.proposals : [] };
+        usingMemoryStorage = (data && data.storage) === "memory";
         loaded = true;
-        setStatus("Connected", "Changes save to the shared database.");
+        setStatus("Connected", connectedStatusDetail());
         render();
       })
       .catch(function (err) {
@@ -103,7 +117,11 @@ export function mountProposalApp() {
     })
       .then(function (res) {
         if (!res.ok) throw new Error("Save failed (" + res.status + ")");
-        setStatus("Connected", "Changes save to the shared database.");
+        return res.json().catch(function () { return null; });
+      })
+      .then(function (data) {
+        usingMemoryStorage = (data && data.storage) === "memory";
+        setStatus("Connected", connectedStatusDetail());
       })
       .catch(function (err) {
         setStatus("Save failed", (err && err.message) || "Something went wrong — your change may not be saved.", true);
