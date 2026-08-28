@@ -1,28 +1,74 @@
-import { kv } from "@vercel/kv";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-const KEY = "tulong:proposals";
+// Server-only. SUPABASE_SERVICE_ROLE_KEY bypasses RLS by design — the
+// `proposals` table has RLS enabled with no policies, so this is the only
+// key that can read/write it. Never expose this key to the browser.
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-// @vercel/kv throws at call time (not import time) if KV_REST_API_URL /
-// KV_REST_API_TOKEN aren't set. Fall back to an in-memory store so local
-// development works before the Vercel KV integration is linked. In-memory
-// data does not persist across server restarts or across serverless
-// invocations in production — set up real KV for that.
-const hasKv = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
+let client: SupabaseClient | null = null;
 
-let memoryStore: unknown[] = [];
-
-export async function getProposals(): Promise<unknown[]> {
-  if (hasKv) {
-    const value = await kv.get<unknown[]>(KEY);
-    return Array.isArray(value) ? value : [];
+function getClient(): SupabaseClient {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error(
+      "Supabase is not configured: set the SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables."
+    );
   }
-  return memoryStore;
+  if (!client) {
+    client = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false },
+    });
+  }
+  return client;
 }
 
-export async function setProposals(proposals: unknown[]): Promise<void> {
-  if (hasKv) {
-    await kv.set(KEY, proposals);
-    return;
+type ProposalRecord = {
+  id: string;
+  slug?: string;
+  client?: { company?: string };
+  updatedAt?: string;
+  [key: string]: unknown;
+};
+
+export async function getProposals(): Promise<ProposalRecord[]> {
+  const supabase = getClient();
+  const { data, error } = await supabase
+    .from("proposals")
+    .select("content")
+    .order("updated_at", { ascending: true });
+  if (error) throw new Error(`Supabase read failed: ${error.message}`);
+  return (data ?? []).map((row) => row.content as ProposalRecord);
+}
+
+// Mirrors the previous "replace the whole list" contract /api/proposals has
+// always used (it always sends the full desired array) — diffed against
+// what's currently stored so unrelated rows aren't needlessly rewritten,
+// with rows for ids no longer present in `proposals` deleted.
+export async function setProposals(proposals: ProposalRecord[]): Promise<void> {
+  const supabase = getClient();
+
+  const { data: existing, error: selectError } = await supabase.from("proposals").select("id");
+  if (selectError) throw new Error(`Supabase read failed: ${selectError.message}`);
+
+  const incomingIds = new Set(proposals.map((p) => p.id));
+  const idsToDelete = (existing ?? [])
+    .map((row) => row.id as string)
+    .filter((id) => !incomingIds.has(id));
+
+  if (idsToDelete.length) {
+    const { error: deleteError } = await supabase.from("proposals").delete().in("id", idsToDelete);
+    if (deleteError) throw new Error(`Supabase delete failed: ${deleteError.message}`);
   }
-  memoryStore = proposals;
+
+  if (proposals.length) {
+    const rows = proposals.map((p) => ({
+      id: p.id,
+      slug: p.slug || "",
+      client_name: (p.client && p.client.company) || "",
+      content: p,
+      updated_at: p.updatedAt || new Date().toISOString(),
+    }));
+    const { error: upsertError } = await supabase.from("proposals").upsert(rows, { onConflict: "id" });
+    if (upsertError) throw new Error(`Supabase write failed: ${upsertError.message}`);
+  }
 }
