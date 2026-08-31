@@ -227,7 +227,7 @@ fieldset{ border:none; padding:0; margin:0; }
 .brief-row{ display:grid; grid-template-columns:200px 1fr; gap:.3rem 1.5rem; padding:.6rem 0; }
 .brief-row + .brief-row{ border-top:1px dashed var(--line); }
 .brief-row .q{ font-size:.82rem; color:var(--ink-faint); }
-.brief-row .a{ font-size:.95rem; color:var(--ink); font-weight:600; }
+.brief-row .a{ font-size:.95rem; color:var(--ink); font-weight:600; white-space:pre-line; }
 @media (max-width:620px){ .brief-row{ grid-template-columns:1fr; } }
 
 .brief-checklist{ display:grid; grid-template-columns:1fr 1fr; gap:.5rem 1.2rem; }
@@ -239,7 +239,7 @@ fieldset{ border:none; padding:0; margin:0; }
 .brief-checklist li.checked .box{ background:var(--indigo-solid); color:#fff; }
 .brief-checklist li.unchecked .box{ border:1.5px solid var(--line); }
 
-.scope-note{ margin-top:1rem; padding:.85rem 1rem; background:var(--surface-2); border-radius:10px; font-size:.9rem; color:var(--ink-soft); }
+.scope-note{ margin-top:1rem; padding:.85rem 1rem; background:var(--surface-2); border-radius:10px; font-size:.9rem; color:var(--ink-soft); white-space:pre-line; }
 
 .service-line{ padding:.9rem 0; border-bottom:1px solid var(--line); display:flex; gap:1rem; align-items:flex-start; }
 .service-line:last-child{ border-bottom:none; }
@@ -275,7 +275,7 @@ fieldset{ border:none; padding:0; margin:0; }
 .compare-table th, .compare-table td{ text-align:left; padding:.55rem .6rem; border-bottom:1px solid var(--line); vertical-align:top; }
 .compare-table th{ font-family:var(--font-mono); font-size:.66rem; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-faint); font-weight:700; }
 .compare-table td.is-current{ font-weight:700; color:var(--tint-ink); }
-.pricing-notes{ margin-top:1rem; padding:.85rem 1rem; background:var(--surface-2); border-radius:10px; font-size:.9rem; color:var(--ink-soft); }
+.pricing-notes{ margin-top:1rem; padding:.85rem 1rem; background:var(--surface-2); border-radius:10px; font-size:.9rem; color:var(--ink-soft); white-space:pre-line; }
 
 .tl-wrap{ display:flex; flex-direction:column; }
 .tl-item{ display:grid; grid-template-columns:2.4rem 1fr; gap:.9rem; }
