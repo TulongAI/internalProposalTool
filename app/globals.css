@@ -314,7 +314,7 @@ fieldset{ border:none; padding:0; margin:0; }
   --crimson:#EC1845; --crimson-text:#C6123B; --crimson-bg:#EC1845;
   --amber:#C9720A; --tint-bg:#E9E7F8; --tint-ink:#322F87;
   --shadow-sm:0 1px 2px rgba(21,34,77,.08); --shadow-md:0 8px 28px rgba(21,34,77,.12);
-  background:var(--paper);
+  background:var(--paper); color:var(--ink);
 }
 .doc-wrap{ position:relative; }
 .doc-corner-pill{
